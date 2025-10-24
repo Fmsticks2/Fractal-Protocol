@@ -1,0 +1,39 @@
+{
+  "name": "fractal-protocol",
+  "version": "1.0.0",
+  "description": "Evolving Prediction Markets for a Dynamic World",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
+    "build:contracts": "cd contracts && cargo build --release",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "format": "npm run format --workspaces",
+    "deploy:testnet": "cd contracts && linera publish-and-create",
+    "start:ai-agent": "npm run start --workspace=backend/ai-agent",
+    "start:oracle": "npm run start --workspace=backend/oracle"
+  },
+  "keywords": [
+    "prediction-markets",
+    "linera",
+    "blockchain",
+    "ai",
+    "defi",
+    "web3"
+  ],
+  "author": "Fractal Protocol Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

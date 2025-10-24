@@ -1,0 +1,249 @@
+Perfect 🔥 — let’s create a **comprehensive PRD (Product Requirements Document)** + **technical architecture plan** for your **Fractal Protocol** — your Linera-based, AI-driven prediction market system.
+
+This version is detailed enough for a **hackathon submission, developer onboarding, or investor pitch**, yet structured for clarity and execution.
+
+---
+
+# 🪞 **Fractal Protocol**
+
+### *Evolving Prediction Markets for a Dynamic World*
+
+---
+
+## 🧭 1. Overview
+
+**Fractal Protocol** is an AI-enhanced **prediction market platform** where each event dynamically spawns new, conditional sub-markets based on its outcome — forming an evolving, tree-like network of interrelated predictions.
+
+The system leverages **Linera’s microchain architecture** to achieve linear scalability, instant finality, and cross-chain message propagation — allowing markets to evolve in real time as events unfold.
+
+---
+
+## 🎯 2. Goals & Objectives
+
+### **Primary Goal**
+
+Build a decentralized, self-expanding prediction market platform that models **real-world causality** through interconnected events and outcomes.
+
+### **Key Objectives**
+
+1. ✅ Enable dynamic creation of sub-markets when parent markets resolve.
+2. ⚡ Achieve seamless cross-chain communication between markets using Linera’s stack.
+3. 🧠 Integrate AI agents that act as *Market Architects* or *Liquidity Providers*.
+4. 💸 Ensure fast, low-cost, and predictable transactions for all users.
+5. 🎨 Provide a beautiful, interactive UI for exploring market trees.
+
+---
+
+## 🧩 3. Core Features
+
+| Feature                  | Description                                                                      | Linera Advantage                          |
+| ------------------------ | -------------------------------------------------------------------------------- | ----------------------------------------- |
+| **Market Creation**      | Create a prediction market with event title, description, and possible outcomes. | Each market = separate microchain.        |
+| **Bet Placement**        | Users stake tokens on outcomes.                                                  | Fast execution, instant finality.         |
+| **Outcome Resolution**   | Market resolves via oracle or admin input.                                       | Triggers cross-chain event.               |
+| **Conditional Spawning** | Automatically create new sub-markets based on resolved outcomes.                 | Cross-chain messaging system.             |
+| **AI Market Architect**  | AI agent proposes or auto-creates sub-markets based on event context.            | On-chain + off-chain agent logic.         |
+| **Visualization Graph**  | Interactive tree showing parent-child relationships.                             | Frontend layer powered by real-time data. |
+
+---
+
+## 🧱 4. Product Scope
+
+### **In-Scope (MVP)**
+
+* Core smart contract for single prediction market.
+* Cross-chain messaging to spawn new sub-markets.
+* Basic wallet integration for placing bets.
+* Simple front-end UI with 1–3 level market tree visualization.
+
+### **Out-of-Scope (Post-MVP)**
+
+* AI liquidity management & autonomous spawning templates.
+* Advanced oracle network integration.
+* Fully permissionless market creation.
+* Social market-sharing features.
+
+---
+
+## ⚙️ 5. Technical Architecture Plan
+
+### **5.1 System Components**
+
+| Layer                             | Component                 | Description                                                                                                                        |
+| --------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend**                      | **Fractal dApp (Web UI)** | Built with React + TypeScript + Tailwind + Linera SDK for wallet integration. Displays markets, outcomes, and visualization graph. |
+| **Smart Contracts (Microchains)** | **Market Contract**       | Core logic for single prediction market. Handles bets, odds, resolution.                                                           |
+|                                   | **Factory Contract**      | Deploys and registers new markets.                                                                                                 |
+|                                   | **Spawn Handler**         | Receives cross-chain messages and creates conditional sub-markets.                                                                 |
+| **Backend (Optional)**            | **AI Agent Layer**        | Off-chain AI process using OpenAI API or custom model. Suggests new markets and provides market analytics.                         |
+| **Oracle System**                 | **Off-chain Oracle**      | Provides event resolution data (via Chainlink/Redstone/Custom). Sends updates to relevant market microchain.                       |
+| **Storage**                       | **Linera Storage Layer**  | Used to persist market data (betting pools, outcomes, participants).                                                               |
+
+---
+
+### **5.2 Smart Contract Design**
+
+#### **A. Market Contract**
+
+Handles the lifecycle of a single prediction market.
+
+**State Variables:**
+
+* `marketId`: unique identifier
+* `question`: string (event title)
+* `outcomes`: array of possible outcomes
+* `bets`: mapping (address → bet details)
+* `totalStaked`: total liquidity in pool
+* `resolved`: boolean
+* `winningOutcome`: string
+* `childMarkets`: array of sub-market IDs
+
+**Functions:**
+
+* `createMarket(question, outcomes[], expiryTime)`
+* `placeBet(outcome, amount)`
+* `resolveMarket(result)`
+* `triggerSpawn(result)` → emits cross-chain message to `Factory`
+* `getMarketData()`
+
+---
+
+#### **B. Market Factory Contract**
+
+Responsible for deploying new markets and managing references.
+
+**Functions:**
+
+* `createNewMarket(parentId, question, outcomes[], seedLiquidity)`
+* `registerMarket(marketAddress)`
+* `getAllMarkets()`
+* `handleCrossChainMessage(message)` → spawns sub-market on trigger
+
+---
+
+#### **C. Cross-Chain Messaging Flow**
+
+1. **Parent Market resolves.**
+   → `resolveMarket(result)` executed.
+2. **Trigger Spawn Event.**
+   → Sends `CrossChainMessage` containing new market logic.
+3. **Factory Contract** on new microchain receives the message.
+   → Deploys sub-market accordingly.
+4. **Frontend updates** tree view by fetching new microchain IDs via Linera indexer.
+
+---
+
+### **5.3 Frontend Architecture**
+
+**Frameworks:** React + Vite + Tailwind + Linera SDK
+
+**Key Components:**
+
+* `MarketCard`: displays individual market info.
+* `BetForm`: allows bet placement.
+* `MarketTree`: renders dynamic tree view of parent-child relationships (using D3.js or React Flow).
+* `WalletConnector`: integrates Linera wallet.
+* `OracleUpdater`: listens for event resolution data.
+
+**Data Flow Example:**
+
+```
+User → UI (BetForm) → Market Smart Contract → State Update → UI Rerender
+Parent Market → Resolution → Cross-Chain Message → Factory → Child Market → Tree Visualization Update
+```
+
+---
+
+### **5.4 AI Integration (Wave 5 – Future Scope)**
+
+**Agent Roles:**
+
+1. 🧠 **Market Architect Agent:**
+
+   * Analyzes real-world data feeds (Twitter, APIs, news).
+   * Suggests new markets (e.g., “Will Bitcoin exceed $80K after ETF approval?”).
+2. 💸 **Liquidity Provider Agent:**
+
+   * Automatically seeds liquidity based on market health metrics.
+
+**Implementation Approach:**
+
+* Off-chain Python service using OpenAI API.
+* Feeds into smart contract via Linera’s cross-chain message endpoints.
+* Governance vote (optional) to approve AI proposals.
+
+---
+
+## 🧪 6. Development Waves (Execution Roadmap)
+
+| Wave                             | Focus                         | Deliverables                                         |
+| -------------------------------- | ----------------------------- | ---------------------------------------------------- |
+| **Wave 1: Foundation**           | Single market prototype       | Smart contract, wallet integration, minimal UI       |
+| **Wave 2: Spawning Mechanism**   | Dynamic sub-market creation   | Cross-chain messaging + parent-child visualization   |
+| **Wave 3: Functional Product**   | Multi-market demo             | Market factory + full lifecycle demo                 |
+| **Wave 4: Polished Experience**  | Graph visualization           | Real-world data integration, dynamic trees           |
+| **Wave 5: Intelligent Platform** | AI agent + user-defined logic | AI market creation + user rule designer              |
+| **Wave 6: Scalable Ecosystem**   | Mainnet readiness             | Permissionless creation, decentralized oracle system |
+
+---
+
+## 🧠 7. User Flows
+
+### **1. Creating a Market**
+
+1. User connects wallet.
+2. Clicks “Create Market.”
+3. Inputs event details and outcomes.
+4. Smart contract deploys new market on its own microchain.
+
+### **2. Placing a Bet**
+
+1. Select active market.
+2. Choose outcome → enter stake.
+3. Transaction confirmed instantly (Linera finality).
+4. Odds auto-update in UI.
+
+### **3. Market Resolution and Spawning**
+
+1. Market resolves via oracle or admin.
+2. Smart contract sends cross-chain message to factory.
+3. Factory spawns new sub-market.
+4. UI tree updates with new branch.
+
+---
+
+## 🧰 8. Tech Stack Summary
+
+| Layer           | Technology                                          |
+| --------------- | --------------------------------------------------- |
+| Frontend        | React, Tailwind CSS, TypeScript, D3.js / React Flow |
+| Smart Contracts | Linera SDK (Rust)                                   |
+| Backend / AI    | Python, OpenAI API                                  |
+| Oracles         | Chainlink / Custom API                              |
+| Database        | Linera State Storage                                |
+| Deployment      | Linera Devnet / Testnet                             |
+
+---
+
+## 🪴 9. Success Metrics
+
+| Metric                  | Target                    |
+| ----------------------- | ------------------------- |
+| ⏱ Transaction Finality  | <1 second                 |
+| 🌐 Concurrent Markets   | 1000+ microchains         |
+| 💰 Average Cost per Tx  | < $0.01                   |
+| 👥 User Satisfaction    | > 90%                     |
+| 🤖 AI Proposal Accuracy | > 70% relevance to trends |
+
+---
+
+## 🚀 10. Long-Term Vision
+
+Fractal Protocol aims to become the **core infrastructure for decentralized prediction ecosystems** — combining **AI intelligence, event dynamics, and on-chain scalability** to create markets that grow and evolve autonomously.
+
+In the future, it could power:
+
+* Real-time event forecasting dashboards.
+* AI-generated market ecosystems.
+* DAO-driven governance over prediction dynamics.
+
