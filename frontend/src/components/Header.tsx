@@ -1,8 +1,8 @@
 import React from 'react';
-import { GitBranch, Plus, BarChart3 } from 'lucide-react';
+import { TreePine, Plus, BarChart3 } from 'lucide-react';
 import { Button } from './ui';
 import WalletConnection from './WalletConnection';
-import { WalletState } from '../types';
+import type { WalletState } from '../types';
 
 interface HeaderProps {
   wallet: WalletState;
@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
-                <GitBranch className="h-5 w-5 text-white" />
+                <TreePine className="h-5 w-5 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Fractal Protocol</h1>
@@ -61,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <GitBranch className="h-4 w-4" />
+                <TreePine className="h-4 w-4" />
                 <span>Tree View</span>
               </button>
             </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, AlertCircle } from 'lucide-react';
+import { AlertCircle, TrendingUp } from 'lucide-react';
 import { Modal, Button, Input, Card } from './ui';
-import { Market, PlaceBetForm, MarketOdds } from '../types';
+import type { Market, MarketOdds, PlaceBetForm } from '../types';
 import { formatCurrency, formatPercentage, calculateProbability, validateBetAmount } from '../utils';
 
 interface PlaceBetModalProps {

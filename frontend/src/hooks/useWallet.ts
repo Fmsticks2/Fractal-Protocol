@@ -1,58 +1,67 @@
-import { useState, useEffect, useCallback } from 'react';
-import { WalletState } from '../types';
+import { useState, useCallback, useEffect } from 'react';
+import type { WalletState } from '../types';
 
-// Mock Linera wallet interface - replace with actual Linera SDK integration
-interface LineraWallet {
-  connect(): Promise<{ address: string; chainId: string }>;
-  disconnect(): Promise<void>;
-  getBalance(address: string): Promise<number>;
-  isConnected(): boolean;
-  getAddress(): string | null;
-  getChainId(): string | null;
-  on(event: string, callback: Function): void;
-  off(event: string, callback: Function): void;
-}
+// Mock Linera wallet implementation for development
+class MockLineraWallet {
+  private connected = false;
+  private address = '';
+  private balance = 0;
+  private eventListeners: { [key: string]: Function[] } = {};
 
-// Mock implementation - replace with actual Linera wallet
-const mockLineraWallet: LineraWallet = {
   async connect() {
     // Simulate connection delay
     await new Promise(resolve => setTimeout(resolve, 1000));
-    return {
-      address: '0x1234567890abcdef1234567890abcdef12345678',
-      chainId: 'linera-testnet',
-    };
-  },
-  
+    
+    this.connected = true;
+    this.address = '0x' + Math.random().toString(16).substr(2, 40);
+    this.balance = Math.floor(Math.random() * 10000) + 1000;
+    
+    this.emit('connect', { address: this.address, balance: this.balance });
+    return { address: this.address, balance: this.balance };
+  }
+
   async disconnect() {
+    this.connected = false;
+    this.address = '';
+    this.balance = 0;
+    
+    this.emit('disconnect');
+  }
+
+  async getBalance(_address: string) {
+    // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
-  },
-  
-  async getBalance(address: string) {
-    // Mock balance
-    return 1000.50;
-  },
-  
+    return this.balance;
+  }
+
   isConnected() {
-    return localStorage.getItem('wallet_connected') === 'true';
-  },
-  
+    return this.connected;
+  }
+
   getAddress() {
-    return localStorage.getItem('wallet_address');
-  },
-  
-  getChainId() {
-    return localStorage.getItem('wallet_chainId');
-  },
-  
-  on(event: string, callback: Function) {
-    // Mock event listener
-  },
-  
-  off(event: string, callback: Function) {
-    // Mock event listener removal
-  },
-};
+    return this.address;
+  }
+
+  getCurrentBalance() {
+    return this.balance;
+  }
+
+  // Event handling methods (unused parameters are intentional for API compatibility)
+  on(_event: string, _callback: Function) {
+    // Mock implementation - parameters kept for interface compatibility
+  }
+
+  off(_event: string, _callback: Function) {
+    // Mock implementation - parameters kept for interface compatibility
+  }
+
+  private emit(event: string, data?: any) {
+    const listeners = this.eventListeners[event] || [];
+    listeners.forEach(callback => callback(data));
+  }
+}
+
+const mockLineraWallet = new MockLineraWallet();
 
 export const useWallet = () => {
   const [wallet, setWallet] = useState<WalletState>({
@@ -71,15 +80,14 @@ export const useWallet = () => {
       try {
         if (mockLineraWallet.isConnected()) {
           const address = mockLineraWallet.getAddress();
-          const chainId = mockLineraWallet.getChainId();
+          const balance = mockLineraWallet.getCurrentBalance();
           
-          if (address && chainId) {
-            const balance = await mockLineraWallet.getBalance(address);
+          if (address) {
             setWallet({
               connected: true,
               address,
               balance,
-              chainId,
+              chainId: 'linera-testnet',
             });
           }
         }
@@ -96,19 +104,13 @@ export const useWallet = () => {
     setError(null);
 
     try {
-      const { address, chainId } = await mockLineraWallet.connect();
-      const balance = await mockLineraWallet.getBalance(address);
-
-      // Store connection state
-      localStorage.setItem('wallet_connected', 'true');
-      localStorage.setItem('wallet_address', address);
-      localStorage.setItem('wallet_chainId', chainId);
+      const { address, balance } = await mockLineraWallet.connect();
 
       setWallet({
         connected: true,
         address,
         balance,
-        chainId,
+        chainId: 'linera-testnet',
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to connect wallet';
@@ -125,11 +127,6 @@ export const useWallet = () => {
 
     try {
       await mockLineraWallet.disconnect();
-
-      // Clear connection state
-      localStorage.removeItem('wallet_connected');
-      localStorage.removeItem('wallet_address');
-      localStorage.removeItem('wallet_chainId');
 
       setWallet({
         connected: false,
@@ -151,7 +148,7 @@ export const useWallet = () => {
     }
 
     try {
-      const balance = await mockLineraWallet.getBalance(wallet.address);
+      const balance = mockLineraWallet.getCurrentBalance();
       setWallet(prev => ({ ...prev, balance }));
     } catch (err) {
       console.error('Failed to refresh balance:', err);
@@ -160,35 +157,34 @@ export const useWallet = () => {
 
   // Set up wallet event listeners
   useEffect(() => {
-    const handleAccountsChanged = (accounts: string[]) => {
-      if (accounts.length === 0) {
-        disconnect();
-      } else {
-        // Handle account change
-        refreshBalance();
-      }
-    };
-
-    const handleChainChanged = (chainId: string) => {
-      setWallet(prev => ({ ...prev, chainId }));
+    const handleConnect = (data: { address: string; balance: number }) => {
+      setWallet({
+        connected: true,
+        address: data.address,
+        balance: data.balance,
+        chainId: 'linera-testnet',
+      });
     };
 
     const handleDisconnect = () => {
-      disconnect();
+      setWallet({
+        connected: false,
+        address: undefined,
+        balance: undefined,
+        chainId: undefined,
+      });
     };
 
     // Add event listeners (mock implementation)
-    mockLineraWallet.on('accountsChanged', handleAccountsChanged);
-    mockLineraWallet.on('chainChanged', handleChainChanged);
+    mockLineraWallet.on('connect', handleConnect);
     mockLineraWallet.on('disconnect', handleDisconnect);
 
     return () => {
       // Remove event listeners
-      mockLineraWallet.off('accountsChanged', handleAccountsChanged);
-      mockLineraWallet.off('chainChanged', handleChainChanged);
+      mockLineraWallet.off('connect', handleConnect);
       mockLineraWallet.off('disconnect', handleDisconnect);
     };
-  }, [disconnect, refreshBalance]);
+  }, []);
 
   return {
     wallet,

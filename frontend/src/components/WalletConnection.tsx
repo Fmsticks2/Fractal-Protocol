@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Wallet, LogOut, AlertCircle } from 'lucide-react';
 import { Button, Card } from './ui';
-import { truncateAddress, formatCurrency } from '../utils';
-import { WalletState } from '../types';
+import type { WalletState } from '../types';
+import { formatCurrency, truncateAddress } from '../utils';
 
 interface WalletConnectionProps {
   wallet: WalletState;

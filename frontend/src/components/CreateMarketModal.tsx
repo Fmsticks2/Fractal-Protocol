@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { Modal, Button, Input, Card } from './ui';
-import { CreateMarketForm } from '../types';
-import { validateMarketQuestion, validateOutcomes } from '../utils';
+import type { CreateMarketForm } from '../types';
+import { validateMarketQuestion } from '../utils';
 
 interface CreateMarketModalProps {
   isOpen: boolean;
@@ -65,7 +65,7 @@ const CreateMarketModal: React.FC<CreateMarketModalProps> = ({
     }
 
     // Validate outcomes
-    const outcomesError = validateOutcomes(form.outcomes);
+    const outcomesError = form.outcomes.length < 2 ? 'At least 2 outcomes required' : '';
     if (outcomesError) {
       newErrors.outcomes = outcomesError;
     }

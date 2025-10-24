@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, Filter, SortAsc, SortDesc } from 'lucide-react';
 import { Input, Button, Card } from './ui';
 import MarketCard from './MarketCard';
-import { Market, MarketOdds } from '../types';
+import type { Market, MarketOdds } from '../types';
 
 interface MarketListProps {
   markets: Market[];

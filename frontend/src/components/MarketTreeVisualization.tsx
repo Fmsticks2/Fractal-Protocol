@@ -1,19 +1,17 @@
 import React, { useCallback, useMemo } from 'react';
-import ReactFlow, {
-  Node,
-  Edge,
-  addEdge,
-  Connection,
-  useNodesState,
+import ReactFlow, { 
+  Controls, 
+  Background, 
+  useNodesState, 
   useEdgesState,
-  Controls,
-  MiniMap,
-  Background,
-  BackgroundVariant,
   Position,
+  addEdge,
+  MiniMap,
+  BackgroundVariant
 } from 'reactflow';
+import type { Node, Edge, Connection } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { MarketTree, Market } from '../types';
+import type { MarketTree, Market } from '../types';
 import { formatCurrency, formatTimeRemaining } from '../utils';
 
 interface MarketTreeVisualizationProps {
@@ -53,7 +51,7 @@ const MarketNode: React.FC<{ data: MarketNodeData }> = ({ data }) => {
         
         <div className="flex items-center justify-between">
           <div className="flex space-x-1">
-            {market.outcomes.slice(0, 2).map((outcome, index) => (
+            {market.outcomes.slice(0, 2).map((outcome, _index) => (
               <div
                 key={outcome}
                 className="px-2 py-1 bg-gray-100 rounded text-xs text-gray-700 truncate"
@@ -193,7 +191,7 @@ const MarketTreeVisualization: React.FC<MarketTreeVisualizationProps> = ({
       >
         <Controls />
         <MiniMap
-          nodeColor={(node) => {
+          nodeColor={(node: Node) => {
             if (node.data?.isSelected) return '#6366f1';
             return '#e5e7eb';
           }}

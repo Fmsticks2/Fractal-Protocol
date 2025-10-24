@@ -1,8 +1,8 @@
 import React from 'react';
-import { Clock, Users, TrendingUp, GitBranch } from 'lucide-react';
+import { Clock, TrendingUp, TreePine } from 'lucide-react';
 import { Card, Button } from './ui';
-import { Market, MarketOdds } from '../types';
-import { formatCurrency, formatTimeRemaining, formatNumber, formatPercentage, calculateProbability } from '../utils';
+import type { Market, MarketOdds } from '../types';
+import { formatCurrency, formatTimeRemaining, formatPercentage, calculateProbability } from '../utils';
 
 interface MarketCardProps {
   market: Market;
@@ -42,7 +42,7 @@ const MarketCard: React.FC<MarketCardProps> = ({
               </div>
               {hasChildren && showChildren && (
                 <div className="flex items-center">
-                  <GitBranch className="h-4 w-4 mr-1" />
+                  <TreePine className="h-4 w-4 mr-1" />
                   {market.childMarkets.length} sub-markets
                 </div>
               )}
@@ -61,7 +61,7 @@ const MarketCard: React.FC<MarketCardProps> = ({
         {/* Outcomes */}
         <div className="flex-1 mb-4">
           <div className="space-y-2">
-            {market.outcomes.map((outcome, index) => {
+            {market.outcomes.map((outcome, _index) => {
               const outcomeOdds = odds?.[outcome] || 1;
               const probability = calculateProbability(outcomeOdds);
               const isWinner = market.resolved && market.winningOutcome === outcome;
@@ -133,7 +133,7 @@ const MarketCard: React.FC<MarketCardProps> = ({
               onClick={() => onViewMarket(market.parentMarketId!)}
               className="text-sm text-primary-600 hover:text-primary-700 flex items-center"
             >
-              <GitBranch className="h-3 w-3 mr-1 rotate-180" />
+              <TreePine className="h-3 w-3 mr-1 rotate-180" />
               View parent market
             </button>
           </div>
