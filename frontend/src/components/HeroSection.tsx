@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, TrendingUp, Zap, Shield } from 'lucide-react';
+import { Zap, Shield, TrendingUp } from 'lucide-react';
 
 const HeroSection = () => {
   const containerVariants = {
@@ -84,45 +84,38 @@ const HeroSection = () => {
             variants={itemVariants}
             className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight"
           >
-            <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              Predict the Future,
-            </span>
-            <br />
-            <span className="bg-gradient-to-r from-primary-400 via-secondary-400 to-primary-600 bg-clip-text text-transparent">
-              Shape Tomorrow
+            <span className="bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600 bg-clip-text text-transparent">
+              Fractal Protocol
             </span>
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p
             variants={itemVariants}
-            className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
+            className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
-            Join the most advanced decentralized prediction market platform. 
-            Trade on real-world events with unprecedented accuracy and transparency.
+            AI-enhanced prediction markets that evolve in real-time. Create markets that dynamically spawn conditional sub-markets, forming an interconnected tree of predictions powered by Linera's microchain architecture.
           </motion.p>
 
           {/* CTA Buttons */}
           <motion.div
             variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="group bg-gradient-to-r from-primary-600 to-secondary-600 text-white px-8 py-4 rounded-full font-semibold text-lg flex items-center space-x-2 hover:shadow-2xl hover:shadow-primary-500/25 transition-all duration-300"
-            >
-              <span>Start Trading</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </motion.button>
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="group bg-transparent border-2 border-muted-foreground/20 text-foreground px-8 py-4 rounded-full font-semibold text-lg flex items-center space-x-2 hover:border-primary-500/50 hover:bg-primary-500/5 transition-all duration-300"
+              className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              <Play className="w-5 h-5" />
-              <span>Watch Demo</span>
+              Create Market
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-4 bg-transparent border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white font-semibold rounded-xl transition-all duration-300"
+            >
+              Explore Markets
             </motion.button>
           </motion.div>
 

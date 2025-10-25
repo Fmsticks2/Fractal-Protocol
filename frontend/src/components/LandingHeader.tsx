@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { TreePine, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import WalletConnect from './WalletConnect';
 
 const LandingHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,20 +58,14 @@ const LandingHeader = () => {
             ))}
           </nav>
 
-          {/* CTA Button */}
+          {/* Wallet Connect */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
             className="hidden md:block"
           >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white px-6 py-2 rounded-full font-medium hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-200"
-            >
-              Get Started
-            </motion.button>
+            <WalletConnect />
           </motion.div>
 
           {/* Mobile Menu Button */}

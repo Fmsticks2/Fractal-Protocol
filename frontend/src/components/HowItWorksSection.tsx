@@ -1,32 +1,36 @@
-import { motion } from 'framer-motion';
-import { UserPlus, Settings, Rocket, TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion'
+import { Icon } from '@iconify/react'
 
 const HowItWorksSection = () => {
   const steps = [
     {
-      icon: UserPlus,
-      title: 'Sign Up',
-      description: 'Create your account in seconds and join our growing community of developers.',
-      step: '01',
+      number: "01",
+      title: "Create Market",
+      description: "Define your prediction market with event details, possible outcomes, and resolution criteria. Each market gets its own microchain for optimal performance.",
+      icon: "mdi:target",
+      color: "from-blue-500 to-cyan-500"
     },
     {
-      icon: Settings,
-      title: 'Configure',
-      description: 'Set up your project with our intuitive configuration tools and templates.',
-      step: '02',
+      number: "02", 
+      title: "Place Predictions",
+      description: "Users stake tokens on outcomes with instant finality. Smart contracts automatically calculate odds and manage liquidity pools in real-time.",
+      icon: "mdi:trending-up",
+      color: "from-purple-500 to-pink-500"
     },
     {
-      icon: Rocket,
-      title: 'Deploy',
-      description: 'Launch your application with one click using our automated deployment pipeline.',
-      step: '03',
+      number: "03",
+      title: "Market Resolution",
+      description: "When events conclude, oracles or admins resolve markets. Winners receive payouts while the system prepares for conditional spawning.",
+      icon: "mdi:check-circle",
+      color: "from-green-500 to-emerald-500"
     },
     {
-      icon: TrendingUp,
-      title: 'Scale',
-      description: 'Monitor performance and scale seamlessly as your user base grows.',
-      step: '04',
-    },
+      number: "04",
+      title: "Dynamic Spawning",
+      description: "Resolved outcomes trigger cross-chain messages that automatically create new conditional sub-markets, forming an evolving prediction tree.",
+      icon: "mdi:lightning-bolt",
+      color: "from-orange-500 to-red-500"
+    }
   ];
 
   const stats = [
@@ -53,23 +57,22 @@ const HowItWorksSection = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="inline-flex items-center px-4 py-2 rounded-full bg-secondary-500/10 border border-secondary-500/20 text-secondary-400 text-sm font-medium mb-6"
           >
-            <Settings className="w-4 h-4 mr-2" />
+            <Icon icon="mdi:cog" className="w-4 h-4 mr-2" />
             How It Works
           </motion.div>
           
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
             <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              Get started in
+              How Fractal Markets
             </span>
             <br />
             <span className="bg-gradient-to-r from-secondary-400 to-primary-400 bg-clip-text text-transparent">
-              four simple steps
+              Work
             </span>
           </h2>
           
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            From setup to deployment, we've streamlined the entire process to get you
-            up and running in minutes, not hours.
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            From market creation to dynamic spawning - discover how our prediction markets evolve
           </p>
         </motion.div>
 
@@ -111,7 +114,7 @@ const HowItWorksSection = () => {
                     }}
                     className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg"
                   >
-                    {step.step}
+                    {step.number}
                   </motion.div>
 
                   {/* Icon */}
@@ -120,7 +123,7 @@ const HowItWorksSection = () => {
                     transition={{ duration: 0.6 }}
                     className="w-16 h-16 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:shadow-lg group-hover:shadow-primary-500/25 transition-all duration-300"
                   >
-                    <step.icon className="w-8 h-8 text-white" />
+                    <Icon icon={step.icon} className="w-8 h-8 text-white" />
                   </motion.div>
 
                   {/* Content */}
