@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
+import { Link } from 'react-router-dom';
 
 const HeroSection = () => {
   const containerVariants = {
@@ -207,28 +208,32 @@ const HeroSection = () => {
             variants={itemVariants}
             className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8"
           >
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              className="group relative px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-2xl transition-all duration-300 shadow-2xl overflow-hidden"
-            >
-              <div className="absolute inset-0 opacity-0 transition-opacity duration-300"></div>
-              <div className="relative flex items-center space-x-2">
-                <span className="text-lg">Create Market</span>
-                <Icon icon="mdi:arrow-right" className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-              </div>
-            </motion.button>
+            <Link to="/create">
+              <motion.button
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="group relative px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-2xl transition-all duration-300 shadow-2xl overflow-hidden"
+              >
+                <div className="absolute inset-0 opacity-0 transition-opacity duration-300"></div>
+                <div className="relative flex items-center space-x-2">
+                  <span className="text-lg">Create Market</span>
+                  <Icon icon="mdi:arrow-right" className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </div>
+              </motion.button>
+            </Link>
             
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              className="group px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-2xl transition-all duration-300 shadow-xl"
-            >
-              <div className="flex items-center space-x-2">
-                <Icon icon="mdi:compass-outline" className="w-5 h-5 text-white" />
-                <span className="text-lg">Explore Markets</span>
-              </div>
-            </motion.button>
+            <Link to="/explore">
+              <motion.button
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="group px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-2xl transition-all duration-300 shadow-xl"
+              >
+                <div className="flex items-center space-x-2">
+                  <Icon icon="mdi:compass-outline" className="w-5 h-5 text-white" />
+                  <span className="text-lg">Explore Markets</span>
+                </div>
+              </motion.button>
+            </Link>
           </motion.div>
 
           {/* Trust Indicators */}

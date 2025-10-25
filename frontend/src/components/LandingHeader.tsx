@@ -1,16 +1,19 @@
 import { motion } from 'framer-motion';
 import { TreePine, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import WalletConnect from './WalletConnect';
 
 const LandingHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
-    { name: 'Features', href: '#features' },
-    { name: 'How It Works', href: '#how-it-works' },
-    { name: 'About', href: '#about' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'Explore', to: '/explore', type: 'route' as const },
+    { name: 'Create', to: '/create', type: 'route' as const },
+    { name: 'Features', to: '/#features', type: 'anchor' as const },
+    { name: 'How It Works', to: '/#how-it-works', type: 'anchor' as const },
+    { name: 'About', to: '/#about', type: 'anchor' as const },
+    { name: 'Contact', to: '/#contact', type: 'anchor' as const },
   ];
 
   return (
@@ -44,17 +47,34 @@ const LandingHeader = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {navItems.map((item, index) => (
-              <motion.a
-                key={item.name}
-                href={item.href}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 + 0.3 }}
-                whileHover={{ y: -2 }}
-                className="text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
-              >
-                {item.name}
-              </motion.a>
+              item.type === 'route' ? (
+                <motion.div
+                  key={item.name}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 + 0.3 }}
+                  whileHover={{ y: -2 }}
+                >
+                  <Link
+                    to={item.to}
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
+                  >
+                    {item.name}
+                  </Link>
+                </motion.div>
+              ) : (
+                <motion.a
+                  key={item.name}
+                  href={item.to}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 + 0.3 }}
+                  whileHover={{ y: -2 }}
+                  className="text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
+                >
+                  {item.name}
+                </motion.a>
+              )
             ))}
           </nav>
 
@@ -94,28 +114,51 @@ const LandingHeader = () => {
         >
           <div className="py-4 space-y-4">
             {navItems.map((item, index) => (
-              <motion.a
-                key={item.name}
-                href={item.href}
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: index * 0.1 }}
-                onClick={() => setIsMenuOpen(false)}
-                className="block text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium py-2"
-              >
-                {item.name}
-              </motion.a>
+              item.type === 'route' ? (
+                <motion.div
+                  key={item.name}
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Link
+                    to={item.to}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium py-2"
+                  >
+                    {item.name}
+                  </Link>
+                </motion.div>
+              ) : (
+                <motion.a
+                  key={item.name}
+                  href={item.to}
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium py-2"
+                >
+                  {item.name}
+                </motion.a>
+              )
             ))}
-            <motion.button
+            <motion.div
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: navItems.length * 0.1 }}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-full font-medium mt-4"
             >
-              Get Started
-            </motion.button>
+              <Link
+                to="/create"
+                onClick={() => setIsMenuOpen(false)}
+                className="w-full inline-block bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-full font-medium mt-4 text-center"
+              >
+                Get Started
+              </Link>
+            </motion.div>
           </div>
-        </motion.div>
+        </motion.div
+        >
       </div>
     </motion.header>
   );
