@@ -1,29 +1,9 @@
-﻿import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Icon } from '@iconify/react'
 import { Link } from 'react-router-dom'
+import { getMarkets, type MarketItem } from '../config/api'
 
- type Market = {
-  id: string
-  title: string
-  category: string
-  tags: string[]
-  volume: number
-  liquidity: number
-  endsAt: string
-  probability: number
-  status: 'open' | 'closed'
-}
 
-const mockMarkets: Market[] = [
-  { id: '1', title: 'BTC above $80k by Dec 31', category: 'Crypto', tags: ['DeFi','L2'], volume: 1250000, liquidity: 75000, endsAt: '2025-12-31', probability: 62, status: 'open' },
-  { id: '2', title: 'ETH staking share > 30% in Q4', category: 'Crypto', tags: ['DeFi'], volume: 620000, liquidity: 50000, endsAt: '2025-10-15', probability: 54, status: 'open' },
-  { id: '3', title: 'OpenAI releases GPT-6 by May', category: 'AI', tags: ['NLP'], volume: 980000, liquidity: 82000, endsAt: '2025-05-01', probability: 47, status: 'open' },
-  { id: '4', title: 'Team X wins the championship', category: 'Sports', tags: ['League'], volume: 310000, liquidity: 20000, endsAt: '2025-03-30', probability: 41, status: 'open' },
-  { id: '5', title: 'Election candidate Y wins presidency', category: 'Politics', tags: ['Election'], volume: 2200000, liquidity: 120000, endsAt: '2025-11-05', probability: 58, status: 'open' },
-  { id: '6', title: 'Global GDP growth > 3% in 2025', category: 'Economy', tags: ['GDP'], volume: 450000, liquidity: 45000, endsAt: '2025-12-20', probability: 35, status: 'open' },
-  { id: '7', title: 'Successful lunar mission launch', category: 'Science', tags: ['Space'], volume: 530000, liquidity: 30000, endsAt: '2025-07-15', probability: 72, status: 'open' },
-  { id: '8', title: 'New Layer-2 beats 5k TPS', category: 'Crypto', tags: ['L2'], volume: 270000, liquidity: 18000, endsAt: '2025-06-01', probability: 49, status: 'open' },
-]
 
 const categoryOptions = ['All','Crypto','AI','Sports','Politics','Economy','Science']
 const sortOptions = [
@@ -40,33 +20,63 @@ const ExploreMarkets = () => {
   const [sort, setSort] = useState<typeof sortOptions[number]['key']>('trending')
   const [activeTag, setActiveTag] = useState<string | null>(null)
 
-  const markets = useMemo(() => {
-    let rows = mockMarkets.filter(m => m.status === 'open')
+  const [markets, setMarkets] = useState<MarketItem[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize] = useState(9)
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-    if (category !== 'All') rows = rows.filter(m => m.category === category)
-    if (activeTag) rows = rows.filter(m => m.tags.includes(activeTag))
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const { items, total } = await getMarkets({
+          page,
+          pageSize,
+          category: category === 'All' ? undefined : category,
+          tag: activeTag ?? undefined,
+          search,
+          sort,
+        })
+        setMarkets(items)
+        setTotal(total)
+      } catch (err: any) {
+        setError(err?.message || 'Failed to fetch markets')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    load()
+  }, [search, category, sort, activeTag, page, pageSize])
+
+  const displayMarkets = useMemo(() => {
+    let rows = markets.slice()
+
+    if (activeTag) rows = rows.filter(m => (m.tags || []).includes(activeTag))
     if (search.trim()) {
       const q = search.toLowerCase().trim()
       rows = rows.filter(m => m.title.toLowerCase().includes(q))
     }
 
-    rows = rows.slice()
     rows.sort((a, b) => {
       switch (sort) {
         case 'volume':
-          return b.volume - a.volume
+          return (b.volume ?? 0) - (a.volume ?? 0)
         case 'liquidity':
-          return b.liquidity - a.liquidity
+          return (b.liquidity ?? 0) - (a.liquidity ?? 0)
         case 'ending':
           return new Date(a.endsAt).getTime() - new Date(b.endsAt).getTime()
         case 'trending':
         default:
-          return (b.volume + b.liquidity) - (a.volume + a.liquidity)
+          return ((b.volume ?? 0) + (b.liquidity ?? 0)) - ((a.volume ?? 0) + (a.liquidity ?? 0))
       }
     })
 
     return rows
-  }, [search, category, sort, activeTag])
+  }, [markets, search, sort, activeTag])
 
   const gradientForCategory = (cat: string) => {
     switch (cat) {
@@ -95,7 +105,7 @@ const ExploreMarkets = () => {
               Filter by category, tags, and popularity to find opportunities that match your interests. Professional layout and data at-a-glance.
             </p>
           </div>
-          <Link to="/create" className="hidden md:inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl font-semibold">
+          <Link to="/create" className="hidden md:inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-500 text-white px-5 py-3 rounded-xl font-semibold">
             <Icon icon="mdi:target" className="w-5 h-5" />
             Create Market
           </Link>
@@ -160,9 +170,31 @@ const ExploreMarkets = () => {
           </div>
         </div>
 
+        {/* Error banner */}
+        {error && (
+          <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-300 px-4 py-3 rounded-xl">
+            <span className="font-semibold">Error:</span> {error}
+          </div>
+        )}
+
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {markets.map((m) => (
+          {loading && Array.from({ length: pageSize }).map((_, i) => (
+            <div key={i} className="bg-card/50 border border-border rounded-2xl p-6 animate-pulse">
+              <div className="w-14 h-14 bg-white/10 rounded-xl mb-4" />
+              <div className="h-4 w-3/4 bg-white/10 rounded mb-2" />
+              <div className="h-3 w-1/2 bg-white/10 rounded mb-4" />
+              <div className="grid grid-cols-3 gap-4">
+                <div className="h-12 bg-white/10 rounded" />
+                <div className="h-12 bg-white/10 rounded" />
+                <div className="h-12 bg-white/10 rounded" />
+              </div>
+              <div className="h-2 w-full bg-white/10 rounded mt-3" />
+              <div className="mt-6 h-10 bg-white/10 rounded" />
+            </div>
+          ))}
+
+          {!loading && displayMarkets.map((m) => (
             <div key={m.id} className="group relative bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-6 hover:bg-card/80 hover:border-primary-500/30 transition-all duration-300">
               {/* Icon */}
               <div className={`w-14 h-14 bg-gradient-to-r ${gradientForCategory(m.category)} rounded-xl flex items-center justify-center mb-4`}>
@@ -175,12 +207,12 @@ const ExploreMarkets = () => {
                   <h3 className="text-lg font-bold text-white mb-1">{m.title}</h3>
                   <div className="text-sm text-muted-foreground">{m.category}  ends {new Date(m.endsAt).toLocaleDateString()}</div>
                 </div>
-                <span className="px-2 py-1 rounded-full bg-white/10 text-white text-xs">Open</span>
+                <span className="px-2 py-1 rounded-full bg-white/10 text-white text-xs">{m.status === 'open' ? 'Open' : 'Closed'}</span>
               </div>
 
               {/* Tags */}
               <div className="mt-3 flex flex-wrap gap-2">
-                {m.tags.map(tag => (
+                {(m.tags || []).map(tag => (
                   <span key={tag} className="px-2 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-muted-foreground">{tag}</span>
                 ))}
               </div>
@@ -189,37 +221,73 @@ const ExploreMarkets = () => {
               <div className="mt-6 grid grid-cols-3 gap-4">
                 <div>
                   <div className="text-xs text-muted-foreground">Volume</div>
-                  <div className="text-white font-semibold">${(m.volume/1000).toFixed(0)}k</div>
+                  <div className="text-white font-semibold">${((m.volume ?? 0)/1000).toFixed(0)}k</div>
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">Liquidity</div>
-                  <div className="text-white font-semibold">${(m.liquidity/1000).toFixed(0)}k</div>
+                  <div className="text-white font-semibold">${((m.liquidity ?? 0)/1000).toFixed(0)}k</div>
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">Probability</div>
-                  <div className="text-white font-semibold">{m.probability}%</div>
+                  <div className="text-white font-semibold">{m.probability ?? 0}%</div>
                 </div>
               </div>
 
               {/* Probability Bar */}
               <div className="mt-3">
                 <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                  <div style={{ width: `${m.probability}%` }} className="h-2 bg-blue-600" />
+                  <div style={{ width: `${m.probability ?? 0}%` }} className="h-2 bg-primary-600" />
                 </div>
               </div>
 
               {/* Actions */}
               <div className="mt-6 flex items-center justify-between">
                 <Link to="/create" className="text-muted-foreground hover:text-white transition-colors">Create similar</Link>
-                <button className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold">Trade</button>
+                <button className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg font-semibold">Trade</button>
               </div>
             </div>
           ))}
         </div>
 
+        {/* Empty state */}
+        {!loading && displayMarkets.length === 0 && (
+          <div className="text-center py-16">
+            <Icon icon="mdi:folder-outline" className="mx-auto w-10 h-10 text-muted-foreground" />
+            <h3 className="mt-4 text-white font-semibold">No markets found</h3>
+            <p className="text-muted-foreground">Try adjusting filters or search terms.</p>
+          </div>
+        )}
+
+        {/* Pagination */}
+        <div className="mt-10 flex items-center justify-center gap-2">
+          <button
+            disabled={page <= 1 || loading}
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            className="px-3 py-2 rounded-lg border border-border text-muted-foreground disabled:opacity-50"
+          >
+            Prev
+          </button>
+          {Array.from({ length: Math.max(1, Math.ceil((total || 0) / pageSize)) }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setPage(i + 1)}
+              className={`px-3 py-2 rounded-lg border ${page === i + 1 ? 'border-primary-500 bg-primary-500/10 text-white' : 'border-border text-muted-foreground'}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            disabled={loading || page >= Math.max(1, Math.ceil((total || 0) / pageSize))}
+            onClick={() => setPage(p => p + 1)}
+            className="px-3 py-2 rounded-lg border border-border text-muted-foreground disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+
         {/* Footer CTA */}
         <div className="text-center mt-12">
-          <Link to="/create" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-full font-semibold">
+          <Link to="/create" className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-500 text-white px-6 py-3 rounded-full font-semibold">
             <Icon icon="mdi:plus-circle" className="w-5 h-5" />
             Create a New Market
           </Link>

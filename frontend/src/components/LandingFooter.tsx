@@ -84,7 +84,7 @@ const LandingFooter = () => {
               <motion.button
                 whileHover={{ scale: 1.05, x: 5 }}
                 whileTap={{ scale: 0.95 }}
-                className="group bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-full font-medium hover:shadow-lg transition-all duration-200 flex items-center whitespace-nowrap"
+                className="group bg-primary-600 hover:bg-primary-500 text-white px-6 py-3 rounded-full font-medium hover:shadow-lg transition-all duration-200 flex items-center whitespace-nowrap"
               >
                 Subscribe
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />

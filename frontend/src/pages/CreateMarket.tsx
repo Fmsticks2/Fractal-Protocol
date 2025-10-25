@@ -1,8 +1,12 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Icon } from '@iconify/react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+import { createMarket } from '../config/api'
 
 const CreateMarket = () => {
+  const navigate = useNavigate()
+
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('Crypto')
@@ -12,10 +16,43 @@ const CreateMarket = () => {
   const [collateral, setCollateral] = useState('USDC')
   const [liquidity, setLiquidity] = useState<number>(1000)
   const [probability, setProbability] = useState<number>(50)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert('Market created (demo). This is a placeholder interaction.')
+
+    // Basic validation
+    if (!name || name.trim().length < 6) return toast.error('Name must be at least 6 characters')
+    if (!description || description.trim().length < 20) return toast.error('Description must be at least 20 characters')
+    if (!closeAt) return toast.error('Close date/time is required')
+    const closeDate = new Date(closeAt)
+    if (isNaN(closeDate.getTime()) || closeDate <= new Date()) return toast.error('Close date must be in the future')
+    if (liquidity <= 0) return toast.error('Seed liquidity must be greater than 0')
+    if (probability < 0 || probability > 100) return toast.error('Probability must be between 0 and 100')
+
+    try {
+      setSubmitting(true)
+      const payload = {
+        title: name,
+        description,
+        category,
+        type,
+        closeAt,
+        oracle,
+        collateral,
+        liquidity,
+        probability,
+      }
+
+      await createMarket(payload)
+      toast.success('Market created successfully')
+      // Navigate to explore or specific market page if available
+      navigate('/explore')
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to create market')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -164,8 +201,8 @@ const CreateMarket = () => {
               </div>
 
               <div className="flex items-center gap-4">
-                <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold">
-                  Create Market
+                <button type="submit" disabled={submitting} className="bg-primary-600 hover:bg-primary-500 disabled:opacity-60 text-white px-6 py-3 rounded-xl font-semibold">
+                  {submitting ? 'Creating...' : 'Create Market'}
                 </button>
                 <Link to="/explore" className="text-muted-foreground hover:text-white transition-colors">
                   Back to Explore
@@ -213,8 +250,8 @@ const CreateMarket = () => {
                 <div className="text-muted-foreground text-sm">Projected fee</div>
                 <div className="text-white font-semibold">{(liquidity * 0.01).toFixed(2)} {collateral}</div>
               </div>
-              <button className="w-full bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold">
-                Create Market
+              <button disabled={submitting} className="w-full bg-primary-600 hover:bg-primary-500 disabled:opacity-60 text-white px-6 py-3 rounded-xl font-semibold">
+                {submitting ? 'Creating...' : 'Create Market'}
               </button>
               <p className="text-xs text-muted-foreground">
                 Markets are subject to protocol terms. Ensure resolution criteria are objective and verifiable.

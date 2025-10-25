@@ -8,6 +8,7 @@ import App from './App.tsx'
 import './index.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import { BrowserRouter } from 'react-router-dom'
+import { Toaster } from 'sonner'
 
 const queryClient = new QueryClient()
 
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
         <RainbowKitProvider>
           <BrowserRouter>
             <App />
+            <Toaster richColors closeButton />
           </BrowserRouter>
         </RainbowKitProvider>
       </QueryClientProvider>

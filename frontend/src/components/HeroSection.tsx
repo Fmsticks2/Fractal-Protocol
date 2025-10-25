@@ -212,7 +212,7 @@ const HeroSection = () => {
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className="group relative px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-2xl transition-all duration-300 shadow-2xl overflow-hidden"
+                className="group relative px-10 py-5 bg-primary-600 hover:bg-primary-500 text-white font-semibold rounded-2xl transition-all duration-300 shadow-2xl overflow-hidden"
               >
                 <div className="absolute inset-0 opacity-0 transition-opacity duration-300"></div>
                 <div className="relative flex items-center space-x-2">
@@ -226,7 +226,7 @@ const HeroSection = () => {
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className="group px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-2xl transition-all duration-300 shadow-xl"
+                className="group px-10 py-5 bg-primary-600 hover:bg-primary-500 text-white font-semibold rounded-2xl transition-all duration-300 shadow-xl"
               >
                 <div className="flex items-center space-x-2">
                   <Icon icon="mdi:compass-outline" className="w-5 h-5 text-white" />
