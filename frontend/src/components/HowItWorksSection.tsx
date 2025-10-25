@@ -62,11 +62,11 @@ const HowItWorksSection = () => {
           </motion.div>
           
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            <span className="text-white">
               How Fractal Markets
             </span>
             <br />
-            <span className="bg-gradient-to-r from-secondary-400 to-primary-400 bg-clip-text text-transparent">
+            <span className="text-white">
               Work
             </span>
           </h2>
@@ -181,7 +181,7 @@ const HowItWorksSection = () => {
               whileHover={{ scale: 1.05, y: -5 }}
               className="text-center bg-card/30 backdrop-blur-sm border border-border rounded-2xl p-6 hover:bg-card/50 transition-all duration-300"
             >
-              <div className="text-3xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent mb-2">
+              <div className="text-3xl font-bold text-white mb-2">
                 {stat.value}
               </div>
               <div className="text-muted-foreground">
@@ -202,7 +202,7 @@ const HowItWorksSection = () => {
           <motion.button
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-gradient-to-r from-secondary-600 to-primary-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-xl hover:shadow-secondary-500/25 transition-all duration-300"
+            className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-xl transition-all duration-300"
           >
             Start Building Today
           </motion.button>

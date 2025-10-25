@@ -36,7 +36,7 @@ const LandingHeader = () => {
                 <TreePine className="w-5 h-5 text-white" />
               </motion.div>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-white">
               Fractal Protocol
             </span>
           </motion.div>
@@ -110,7 +110,7 @@ const LandingHeader = () => {
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: navItems.length * 0.1 }}
-              className="w-full bg-gradient-to-r from-primary-600 to-secondary-600 text-white px-6 py-3 rounded-full font-medium mt-4"
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-full font-medium mt-4"
             >
               Get Started
             </motion.button>

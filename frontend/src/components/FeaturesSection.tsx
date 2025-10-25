@@ -86,11 +86,11 @@ const FeaturesSection = () => {
           </motion.div>
           
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            <span className="text-white">
               Evolving Prediction
             </span>
             <br />
-            <span className="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+            <span className="text-white">
               Markets
             </span>
           </h2>
@@ -162,7 +162,7 @@ const FeaturesSection = () => {
           <motion.button
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-xl hover:shadow-primary-500/25 transition-all duration-300"
+            className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-xl transition-all duration-300"
           >
             Explore All Features
           </motion.button>

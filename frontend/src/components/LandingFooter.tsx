@@ -60,7 +60,7 @@ const LandingFooter = () => {
             </motion.div>
             
             <h3 className="text-3xl md:text-4xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              <span className="text-white">
                 Get the latest updates
               </span>
             </h3>
@@ -84,7 +84,7 @@ const LandingFooter = () => {
               <motion.button
                 whileHover={{ scale: 1.05, x: 5 }}
                 whileTap={{ scale: 0.95 }}
-                className="group bg-gradient-to-r from-primary-600 to-secondary-600 text-white px-6 py-3 rounded-full font-medium hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-200 flex items-center whitespace-nowrap"
+                className="group bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-full font-medium hover:shadow-lg transition-all duration-200 flex items-center whitespace-nowrap"
               >
                 Subscribe
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -112,7 +112,7 @@ const LandingFooter = () => {
                 >
                   <TreePine className="w-6 h-6 text-white" />
                 </motion.div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+                <span className="text-2xl font-bold text-white">
                   Fractal Protocol
                 </span>
               </div>
