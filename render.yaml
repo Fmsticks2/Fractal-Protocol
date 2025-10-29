@@ -28,6 +28,16 @@ services:
         value: https://wallet-node.yourdomain.com/graphql
       - key: DATABASE_URL
         fromDatabase: fractal-postgres
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX
+        value: 500
+      - key: PG_POOL_MAX
+        value: 10
+      - key: PG_IDLE_TIMEOUT_MS
+        value: 30000
+      - key: PG_CONN_TIMEOUT_MS
+        value: 5000
 
 # Managed Postgres (optional). If you don’t need DB, remove this section
 # and the DATABASE_URL envVar above.

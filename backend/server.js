@@ -3,7 +3,14 @@ const cors = require('cors');
 const app = express();
 const { Pool } = require('pg')
 const crypto = require('crypto')
-const fetch = require('node-fetch')
+const fetchModule = require('node-fetch')
+const fetch = fetchModule.default || fetchModule
+const helmetModule = require('helmet')
+/** @type {any} */ const helmet = helmetModule.default || helmetModule
+const compression = require('compression')
+const morgan = require('morgan')
+const rateLimitModule = require('express-rate-limit')
+/** @type {any} */ const rateLimit = rateLimitModule.default || rateLimitModule
 
 // Configure CORS: restrict in production via ALLOWED_ORIGINS, allow localhost in dev
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
@@ -24,90 +31,69 @@ const corsOptions = {
   credentials: true,
 }
 app.use(cors(corsOptions));
-app.use(express.json());
+app.set('trust proxy', 1);
+app.use(helmet());
+app.use(compression());
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(express.json({ limit: '1mb' }));
+
+const apiLimiter = rateLimit({
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
+  max: Number(process.env.RATE_LIMIT_MAX || 500),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/', apiLimiter);
 
 // Linera GraphQL
 const LINERA_GRAPHQL_URL = process.env.LINERA_GRAPHQL_URL || 'http://127.0.0.1:8080/graphql'
 
-// Seed data
-let markets = [
-  { id: '1', title: 'BTC above $80k by Dec 31', category: 'Crypto', tags: ['DeFi','L2'], volume: 1250000, liquidity: 75000, endsAt: '2025-12-31', probability: 62, status: 'open' },
-  { id: '2', title: 'ETH staking share > 30% in Q4', category: 'Crypto', tags: ['DeFi'], volume: 620000, liquidity: 50000, endsAt: '2025-10-15', probability: 54, status: 'open' },
-  { id: '3', title: 'OpenAI releases GPT-6 by May', category: 'AI', tags: ['NLP'], volume: 980000, liquidity: 82000, endsAt: '2025-05-01', probability: 47, status: 'open' },
-  { id: '4', title: 'Team X wins the championship', category: 'Sports', tags: ['League'], volume: 310000, liquidity: 20000, endsAt: '2025-03-30', probability: 41, status: 'open' },
-  { id: '5', title: 'Election candidate Y wins presidency', category: 'Politics', tags: ['Election'], volume: 2200000, liquidity: 120000, endsAt: '2025-11-05', probability: 58, status: 'open' },
-  { id: '6', title: 'Global GDP growth > 3% in 2025', category: 'Economy', tags: ['GDP'], volume: 450000, liquidity: 45000, endsAt: '2025-12-20', probability: 35, status: 'open' },
-  { id: '7', title: 'Successful lunar mission launch', category: 'Science', tags: ['Space'], volume: 530000, liquidity: 30000, endsAt: '2025-07-15', probability: 72, status: 'open' },
-  { id: '8', title: 'New Layer-2 beats 5k TPS', category: 'Crypto', tags: ['L2'], volume: 270000, liquidity: 18000, endsAt: '2025-06-01', probability: 49, status: 'open' },
-  { id: '9', title: 'Bitcoin ETF inflows exceed $5B in Q1', category: 'Crypto', tags: ['ETF'], volume: 800000, liquidity: 55000, endsAt: '2025-03-31', probability: 57, status: 'open' },
-  { id: '10', title: 'AI model surpasses human on LSAT', category: 'AI', tags: ['NLP'], volume: 350000, liquidity: 20000, endsAt: '2025-04-30', probability: 44, status: 'open' },
-  { id: '11', title: 'Team Y reaches finals', category: 'Sports', tags: ['League'], volume: 150000, liquidity: 12000, endsAt: '2025-02-10', probability: 33, status: 'open' },
-  { id: '12', title: 'Candidate Z loses primary', category: 'Politics', tags: ['Election'], volume: 900000, liquidity: 65000, endsAt: '2025-09-20', probability: 48, status: 'open' },
-  { id: '13', title: 'US CPI < 3% by year-end', category: 'Economy', tags: ['CPI'], volume: 420000, liquidity: 32000, endsAt: '2025-12-12', probability: 51, status: 'open' },
-  { id: '14', title: 'SpaceX lands Starship successfully', category: 'Science', tags: ['Space'], volume: 1100000, liquidity: 90000, endsAt: '2025-08-01', probability: 69, status: 'open' },
-  { id: '15', title: 'New L3 gains 1M users', category: 'Crypto', tags: ['L2'], volume: 380000, liquidity: 25000, endsAt: '2025-07-01', probability: 46, status: 'open' },
-  { id: '16', title: 'Chatbot passes Turing Test', category: 'AI', tags: ['NLP'], volume: 730000, liquidity: 42000, endsAt: '2025-10-01', probability: 40, status: 'open' },
-  { id: '17', title: 'Olympic world record broken', category: 'Sports', tags: ['Olympics'], volume: 210000, liquidity: 15000, endsAt: '2025-08-15', probability: 28, status: 'open' },
-  { id: '18', title: 'EU adopts crypto MiCA v2', category: 'Politics', tags: ['Regulation'], volume: 500000, liquidity: 35000, endsAt: '2025-12-01', probability: 55, status: 'open' },
-  { id: '19', title: 'Global GDP growth > 4%', category: 'Economy', tags: ['GDP'], volume: 300000, liquidity: 22000, endsAt: '2025-11-25', probability: 31, status: 'open' },
-  { id: '20', title: 'James Webb discovers exoplanet biosignatures', category: 'Science', tags: ['Space'], volume: 250000, liquidity: 21000, endsAt: '2025-09-09', probability: 24, status: 'open' }
-];
 
-function applyFiltersSort(items, { category, tag, search, sort }) {
-  let rows = [...items];
-  if (category) rows = rows.filter(m => m.category === category);
-  if (tag) rows = rows.filter(m => (m.tags || []).includes(tag));
-  if (search) {
-    const q = String(search).toLowerCase();
-    rows = rows.filter(m => (m.title || '').toLowerCase().includes(q));
-  }
 
-  rows.sort((a, b) => {
-    switch (sort) {
-      case 'volume':
-        return (b.volume || 0) - (a.volume || 0);
-      case 'liquidity':
-        return (b.liquidity || 0) - (a.liquidity || 0);
-      case 'ending':
-        return new Date(a.endsAt).getTime() - new Date(b.endsAt).getTime();
-      case 'trending':
-      default:
-        return ((b.volume || 0) + (b.liquidity || 0)) - ((a.volume || 0) + (a.liquidity || 0));
-    }
-  });
 
-  return rows;
+const isProd = process.env.NODE_ENV === 'production'
+const hasDb = !!process.env.DATABASE_URL
+if (isProd && !hasDb) {
+  console.error('DATABASE_URL must be set in production')
+  process.exit(1)
 }
-
-const useDB = !!process.env.DATABASE_URL
+const useDB = hasDb || isProd
 let pool = null
 
 if (useDB) {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    ssl: isProd ? { rejectUnauthorized: false } : false,
+    max: Number(process.env.PG_POOL_MAX || 10),
+    idleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT_MS || 30000),
+    connectionTimeoutMillis: Number(process.env.PG_CONN_TIMEOUT_MS || 5000),
   })
+  pool.on('error', (err) => console.error('Unexpected DB error', err))
   ;(async function ensureSchema() {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS markets (
-        id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        description TEXT,
-        category TEXT NOT NULL,
-        tags JSONB DEFAULT '[]'::jsonb,
-        volume NUMERIC DEFAULT 0,
-        liquidity NUMERIC DEFAULT 0,
-        ends_at TIMESTAMPTZ NOT NULL,
-        probability NUMERIC DEFAULT 50,
-        status TEXT DEFAULT 'open',
-        created_at TIMESTAMPTZ DEFAULT now()
-      );
-    `)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_markets_ends_at ON markets (ends_at);`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_markets_tags ON markets USING GIN (tags);`)
-    console.log('DB schema ensured')
-  })().catch(err => console.error('DB init error', err))
-}
+     const client = await pool.connect()
+     try {
+       await client.query(`
+        CREATE TABLE IF NOT EXISTS markets (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          description TEXT,
+          category TEXT NOT NULL,
+          tags JSONB DEFAULT '[]'::jsonb,
+          volume NUMERIC DEFAULT 0,
+          liquidity NUMERIC DEFAULT 0,
+          ends_at TIMESTAMPTZ NOT NULL,
+          probability NUMERIC DEFAULT 50,
+          status TEXT DEFAULT 'open',
+          created_at TIMESTAMPTZ DEFAULT now()
+        );
+        CREATE INDEX IF NOT EXISTS idx_markets_ends_at ON markets (ends_at);
+        CREATE INDEX IF NOT EXISTS idx_markets_tags ON markets USING GIN (tags);
+      `)
+     } finally {
+       client.release()
+     }
+   })()
+ }
 
 // Linera proxy: health and GraphQL forward
 app.get('/api/linera/health', async (req, res) => {
@@ -115,7 +101,7 @@ app.get('/api/linera/health', async (req, res) => {
     const r = await fetch(LINERA_GRAPHQL_URL, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ query: '{ __schema { queryType { name } } }' })
+      body: JSON.stringify({ query: '{ __schema { queryType { name } } } }' })
     })
     return res.json({ ok: r.ok, status: r.status })
   } catch (err) {
@@ -139,8 +125,8 @@ app.post('/api/linera/graphql', async (req, res) => {
 })
 
 app.get('/api/markets', async (req, res) => {
-  const page = Math.max(parseInt(req.query.page) || 1, 1)
-  const pageSize = Math.max(parseInt(req.query.pageSize) || 9, 1)
+  const page = Math.max(parseInt(String(req.query.page || '')) || 1, 1)
+  const pageSize = Math.max(parseInt(String(req.query.pageSize || '')) || 9, 1)
   const { category, tag, search, sort } = req.query
 
   if (useDB) {
@@ -192,11 +178,7 @@ app.get('/api/markets', async (req, res) => {
       return res.status(500).json({ error: 'Internal Server Error' })
     }
   } else {
-    const filtered = applyFiltersSort(markets, { category, tag, search, sort })
-    const total = filtered.length
-    const start = (page - 1) * pageSize
-    const items = filtered.slice(start, start + pageSize)
-    return res.json({ items, total, page, pageSize })
+    return res.status(503).json({ error: 'Database not configured' })
   }
 })
 
@@ -227,61 +209,63 @@ app.get('/api/markets/:id', async (req, res) => {
       return res.status(500).json({ error: 'Internal Server Error' })
     }
   } else {
-    const found = markets.find(m => m.id === id)
-    if (!found) return res.status(404).json({ error: 'Not found' })
-    return res.json(found)
+    return res.status(503).json({ error: 'Database not configured' })
   }
 })
 
 app.post('/api/markets', async (req, res) => {
   const p = req.body || {}
-  if (!p.title || !p.category || !p.closeAt) {
-    return res.status(400).json({ error: 'title, category, and closeAt are required' })
-  }
-  const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now())
+  const title = String(p.title || '').trim()
+  const category = String(p.category || '').trim()
+  const desc = String(p.description || '').trim()
   const endsAtDate = new Date(p.closeAt)
-  if (isNaN(endsAtDate.getTime())) {
-    return res.status(400).json({ error: 'Invalid closeAt' })
-  }
+  const tags = Array.isArray(p.tags) ? p.tags.map((t) => String(t).trim()).filter(Boolean).slice(0, 20) : []
+  const liquidity = Number(p.liquidity)
+  const probability = Number(p.probability)
+  if (title.length < 3 || title.length > 200) return res.status(422).json({ error: 'title length must be 3-200' })
+  if (!category || category.length > 50) return res.status(422).json({ error: 'category required (max 50 chars)' })
+  if (isNaN(endsAtDate.getTime()) || endsAtDate.getTime() <= Date.now()) return res.status(422).json({ error: 'closeAt must be a future date' })
+  if (!Number.isFinite(liquidity) || liquidity < 0) return res.status(422).json({ error: 'liquidity must be >= 0' })
+  if (!Number.isFinite(probability) || probability < 0 || probability > 100) return res.status(422).json({ error: 'probability must be 0-100' })
+  const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now())
   const item = {
     id,
-    title: String(p.title),
-    description: p.description || null,
-    category: String(p.category),
-    tags: Array.isArray(p.tags) ? p.tags : [],
-    volume: 0,
-    liquidity: Number(p.liquidity) || 0,
-    endsAt: endsAtDate.toISOString(),
-    probability: Number(p.probability) || 50,
+    title,
+    description: desc,
+    category,
+    tags,
+    liquidity,
+    probability,
     status: 'open',
+    created_at: new Date(),
+    ends_at: endsAtDate,
   }
 
   if (useDB) {
     try {
-      await pool.query(
-        `INSERT INTO markets (id, title, description, category, tags, volume, liquidity, ends_at, probability, status)
-         VALUES ($1,$2,$3,$4,$5::jsonb,$6,$7,$8,$9,$10)`,
+      const r = await pool.query(
+        `INSERT INTO markets (id, title, description, category, tags, liquidity, probability, status, created_at, ends_at)
+         VALUES ($1,$2,$3,$4,$5::jsonb,$6,$7,$8,$9,$10) RETURNING id`,
         [
           item.id,
           item.title,
           item.description,
           item.category,
           JSON.stringify(item.tags),
-          item.volume,
           item.liquidity,
-          item.endsAt,
           item.probability,
           item.status,
+          item.created_at,
+          item.ends_at,
         ]
       )
-      return res.status(201).json(item)
+      return res.status(201).json({ id: r.rows[0].id })
     } catch (err) {
       console.error('POST /api/markets error', err)
       return res.status(500).json({ error: 'Internal Server Error' })
     }
   } else {
-    markets.unshift(item)
-    return res.status(201).json(item)
+    return res.status(503).json({ error: 'Database not configured' })
   }
 })
 
@@ -298,7 +282,26 @@ app.get('/health', async (req, res) => {
   }
 })
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Mock API running on http://localhost:${PORT}`);
-});
+app.use((req, res) => res.status(404).json({ error: 'Not Found' }))
+app.use((err, req, res, next) => {
+  console.error(err)
+  res.status(500).json({ error: 'Internal Server Error' })
+})
+
+const PORT = Number(process.env.PORT || 3000)
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
+
+function shutdown() {
+  console.log('Shutting down gracefully...')
+  server.close(() => {
+    if (pool) {
+      pool.end().catch(() => {}).finally(() => process.exit(0))
+    } else {
+      process.exit(0)
+    }
+  })
+}
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)

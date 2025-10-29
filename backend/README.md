@@ -64,3 +64,10 @@ See `docs/linera-setup.md` for detailed installation and usage.
 ## Render Deployment
 - Set environment variables in Render service settings.
 - Use `npm run seed` as a one-off job for DB seeding.
+
+## Production Notes
+- `NODE_ENV=production` requires `DATABASE_URL`; the service will exit if missing.
+- Security middleware enabled: `helmet`, `compression`, request logging via `morgan`.
+- Rate limiting: adjust `RATE_LIMIT_WINDOW_MS` and `RATE_LIMIT_MAX` via env.
+- Postgres pool tuning: `PG_POOL_MAX`, `PG_IDLE_TIMEOUT_MS`, `PG_CONN_TIMEOUT_MS`.
+- Graceful shutdown on `SIGTERM`/`SIGINT` closes DB pool and HTTP server.

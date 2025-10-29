@@ -61,3 +61,18 @@ Note: Do not set `PORT` manually; Render injects it and the server respects `pro
 - 404 for frontend requests: verify `ALLOWED_ORIGINS` includes your Netlify domain.
 - Linera proxy errors: check `LINERA_GRAPHQL_URL` and that the wallet node is reachable from Render.
 - DB connection failures: ensure `DATABASE_URL` is present and correct; confirm the managed DB is provisioned and available.
+
+## Production Hardening
+- Security middleware: `helmet`, `compression`, `morgan` are enabled.
+- Rate limiting: configure `RATE_LIMIT_WINDOW_MS` and `RATE_LIMIT_MAX`.
+- Postgres pool: tune `PG_POOL_MAX`, `PG_IDLE_TIMEOUT_MS`, `PG_CONN_TIMEOUT_MS`.
+- Strict CORS: set `ALLOWED_ORIGINS` to only allowed domains.
+- DB required in production: service exits if `NODE_ENV=production` and `DATABASE_URL` is missing.
+- Graceful shutdown: closes HTTP server and Postgres pool on `SIGTERM`/`SIGINT`.
+
+## Additional Env Vars
+- `RATE_LIMIT_WINDOW_MS` (default `900000`)
+- `RATE_LIMIT_MAX` (default `500`)
+- `PG_POOL_MAX` (default `10`)
+- `PG_IDLE_TIMEOUT_MS` (default `30000`)
+- `PG_CONN_TIMEOUT_MS` (default `5000`)
