@@ -22,8 +22,7 @@ services:
       - key: NODE_VERSION
         value: 20
       - key: ALLOWED_ORIGINS
-        # Include your Netlify site and any custom frontend domains
-        value: https://<your-site>.netlify.app,https://yourdomain.com
+        value: https://fractalprotocol.netlify.app
       - key: LINERA_GRAPHQL_URL
         # Point to your wallet node GraphQL or app GraphQL if applicable
         value: https://wallet-node.yourdomain.com/graphql
