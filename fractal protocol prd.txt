@@ -1,6 +1,3 @@
-Perfect 🔥 — let’s create a **comprehensive PRD (Product Requirements Document)** + **technical architecture plan** for your **Fractal Protocol** — your Linera-based, AI-driven prediction market system.
-
-This version is detailed enough for a **hackathon submission, developer onboarding, or investor pitch**, yet structured for clarity and execution.
 
 ---
 
