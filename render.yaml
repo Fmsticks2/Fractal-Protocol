@@ -1,0 +1,40 @@
+# Render Infrastructure-as-Code configuration for backend deployment
+
+services:
+  - type: web
+    name: fractal-backend
+    env: node
+    plan: free
+    region: oregon
+    autoDeploy: true
+    previews:
+      enabled: true
+    buildCommand: |
+      cd backend
+      npm ci
+    startCommand: |
+      cd backend
+      npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 20
+      - key: ALLOWED_ORIGINS
+        # Include your Netlify site and any custom frontend domains
+        value: https://<your-site>.netlify.app,https://yourdomain.com
+      - key: LINERA_GRAPHQL_URL
+        # Point to your wallet node GraphQL or app GraphQL if applicable
+        value: https://wallet-node.yourdomain.com/graphql
+      - key: DATABASE_URL
+        fromDatabase: fractal-postgres
+
+# Managed Postgres (optional). If you don’t need DB, remove this section
+# and the DATABASE_URL envVar above.
+databases:
+  - name: fractal-postgres
+    plan: free
+    region: oregon
+    databaseName: fractal
+    user: fractal_user
