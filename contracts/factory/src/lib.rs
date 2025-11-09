@@ -312,3 +312,6 @@ pub struct MarketTree {
     pub market: MarketInfo,
     pub children: Vec<MarketTree>,
 }
+
+// Export the contract implementation for the Wasm module
+linera_sdk::contract::contract!(FactoryContract);

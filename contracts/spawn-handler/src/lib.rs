@@ -367,3 +367,6 @@ impl SpawnHandlerContract {
             .replace("{parent_question}", "the previous event") // Simplified
     }
 }
+
+// Export the contract implementation for the Wasm module
+linera_sdk::contract::contract!(SpawnHandlerContract);

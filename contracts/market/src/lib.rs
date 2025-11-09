@@ -264,3 +264,6 @@ impl MarketContract {
         Ok(user_bets)
     }
 }
+
+// Export the contract implementation for the Wasm module
+linera_sdk::contract::contract!(MarketContract);
