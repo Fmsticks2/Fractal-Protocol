@@ -1,9 +1,11 @@
 use linera_sdk::{
     base::{Amount, ApplicationId, ChainId, Timestamp},
-    contract::Contract,
+    Contract,
     views::{MapView, View},
-    ApplicationCallResult, CalleeContext, ExecutionResult, MessageContext,
-    OperationContext, SessionCallResult, ViewStateStorage,
+    contract::{
+        ApplicationCallResult, CalleeContext, ExecutionResult, MessageContext,
+        OperationContext, SessionCallResult, ViewStateStorage,
+    },
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
