@@ -1,5 +1,5 @@
 [package]
-name = "spawn-handler-contract"
+name = "market-service"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -9,9 +9,8 @@ repository.workspace = true
 [dependencies]
 linera-sdk.workspace = true
 serde.workspace = true
-thiserror.workspace = true
-async-trait.workspace = true
-linera-views = "0.15"
+async-graphql = "6"
+market-contract = { path = "../market" }
 
 [lib]
 crate-type = ["cdylib"]

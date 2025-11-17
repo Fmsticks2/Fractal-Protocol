@@ -1,9 +1,13 @@
+#![recursion_limit = "1024"]
+
 use linera_sdk::{
     abi::WithContractAbi,
     contract::ContractRuntime,
     Contract,
     views::{RegisterView, View},
 };
+use linera_views::{batch::Batch, store::WritableKeyValueStore};
+use linera_views::context::Context;
 use serde::{Deserialize, Serialize};
 
 // Define the ABI types shared by the contract and service
@@ -83,7 +87,17 @@ impl Contract for HelloContract {
         // No messages in this simple app
     }
 
-    async fn store(self) {}
+    async fn store(self) {
+        let mut batch = Batch::default();
+        self.state
+            .pre_save(&mut batch)
+            .expect("Failed to pre-save Hello state");
+        let mut context = self.runtime.root_view_storage_context();
+        let store = context.store();
+        WritableKeyValueStore::write_batch(store, batch)
+            .await
+            .expect("Failed to write Hello batch");
+    }
 }
 
 impl WithContractAbi for HelloContract {

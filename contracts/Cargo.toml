@@ -4,7 +4,9 @@ members = [
     "factory", 
     "spawn-handler",
     "hello",
-    "hello-service"
+    "hello-service",
+    "market-service",
+    "factory-service"
 ]
 resolver = "2"
 

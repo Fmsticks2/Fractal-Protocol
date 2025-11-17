@@ -11,6 +11,7 @@ linera-sdk.workspace = true
 serde.workspace = true
 thiserror.workspace = true
 async-trait.workspace = true
+linera-views = "0.15"
 
 [lib]
 crate-type = ["cdylib"]

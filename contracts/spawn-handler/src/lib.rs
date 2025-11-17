@@ -1,3 +1,5 @@
+#![recursion_limit = "1024"]
+
 use linera_sdk::{
     abi::WithContractAbi,
     linera_base_types::{Amount, ChainId, Timestamp},
@@ -5,7 +7,10 @@ use linera_sdk::{
     views::{RegisterView, View},
     Contract,
 };
+// no direct Batch usage; use View::flush to persist changes
 use serde::{Deserialize, Serialize};
+use linera_views::{batch::Batch, store::WritableKeyValueStore};
+use linera_views::context::Context;
 use std::collections::HashMap;
 use thiserror::Error;
 
@@ -206,7 +211,17 @@ impl Contract for SpawnHandlerContract {
 
     async fn execute_message(&mut self, _message: Message) {}
 
-    async fn store(self) {}
+    async fn store(self) {
+        let mut batch = Batch::default();
+        self.state
+            .pre_save(&mut batch)
+            .expect("Failed to pre-save SpawnHandler state");
+        let mut context = self.runtime.root_view_storage_context();
+        let store = context.store();
+        WritableKeyValueStore::write_batch(store, batch)
+            .await
+            .expect("Failed to write SpawnHandler batch");
+    }
 }
 
 impl SpawnHandlerContract {
