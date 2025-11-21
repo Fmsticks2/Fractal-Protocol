@@ -18,44 +18,26 @@ if [ -d "/build/contracts" ]; then
   cd /build
 fi
 
-# 3) Publish and create applications for available contract/service pairs
-publish_pair() {
-  local contract_path=$1
-  local service_path=$2
-  local label=$3
-  if [ -f "$contract_path" ] && [ -f "$service_path" ]; then
-    local BYTECODE_ID
-    BYTECODE_ID=$(linera publish-bytecode "$contract_path" "$service_path")
-    local APP_ID
-    APP_ID=$(linera create-application "$BYTECODE_ID" --json-argument "null")
-    echo "Published $label bytecode: $BYTECODE_ID"
-    echo "Created $label application: $APP_ID"
-  else
-    echo "$label Wasm not found; skipping publish/create."
-  fi
-}
+# 3) Publish and create application for hello-contract if available
+HELLO_CONTRACT_WASM=/build/contracts/hello/target/wasm32-unknown-unknown/release/hello_contract.wasm
+HELLO_SERVICE_WASM=/build/contracts/hello-service/target/wasm32-unknown-unknown/release/hello_service.wasm
 
-publish_pair \
-  /build/contracts/hello/target/wasm32-unknown-unknown/release/hello_contract.wasm \
-  /build/contracts/hello-service/target/wasm32-unknown-unknown/release/hello_service.wasm \
-  hello
+if [ -f "$HELLO_CONTRACT_WASM" ] && [ -f "$HELLO_SERVICE_WASM" ]; then
+  BYTECODE_ID=$(linera publish-bytecode "$HELLO_CONTRACT_WASM" "$HELLO_SERVICE_WASM")
+  APP_ID=$(linera create-application "$BYTECODE_ID" --json-argument "null")
+  echo "Published hello bytecode: $BYTECODE_ID"
+  echo "Created hello application: $APP_ID"
+else
+  echo "Hello contract/service Wasm not found; skipping publish/create."
+fi
 
-publish_pair \
-  /build/contracts/market/target/wasm32-unknown-unknown/release/market_contract.wasm \
-  /build/contracts/market-service/target/wasm32-unknown-unknown/release/market_service.wasm \
-  market
-
-publish_pair \
-  /build/contracts/factory/target/wasm32-unknown-unknown/release/factory_contract.wasm \
-  /build/contracts/factory-service/target/wasm32-unknown-unknown/release/factory_service.wasm \
-  factory
-
-# 4) Start the wallet node service (GraphQL) on 8081 to avoid faucet port conflict
-linera service --port 8081 &
+# 4) Start the wallet node service (GraphQL)
+linera service --port 8080 &
 
 # 5) Build and run the frontend on port 5173
 if [ -d "/build/frontend" ]; then
   cd /build/frontend
+  # Use pnpm if available; fallback to npm
   if command -v pnpm >/dev/null 2>&1; then
     pnpm install --prefer-frozen-lockfile=false
     pnpm dev --host 0.0.0.0
@@ -65,5 +47,6 @@ if [ -d "/build/frontend" ]; then
   fi
 else
   echo "No /build/frontend directory found. Container healthcheck will fail unless a web server binds :5173."
+  # Keep the container running to allow manual interaction
   tail -f /dev/null
 fi
