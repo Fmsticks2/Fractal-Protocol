@@ -2,7 +2,7 @@ use linera_sdk::{
     service::{service, ServiceRuntime},
     views::{RegisterView, View},
     Service, WithServiceAbi,
-    linera_base_types::{Amount, ChainId, Timestamp},
+    base::{Amount, ChainId, Timestamp},
 };
 use async_graphql::{EmptySubscription, Object, Request, Response, Schema};
 use std::collections::HashMap;

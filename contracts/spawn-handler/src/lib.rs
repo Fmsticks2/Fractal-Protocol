@@ -2,7 +2,7 @@
 
 use linera_sdk::{
     abi::WithContractAbi,
-    linera_base_types::{Amount, ChainId, Timestamp},
+    base::{Amount, ChainId, Timestamp},
     contract::ContractRuntime,
     views::{RegisterView, View},
     Contract,
