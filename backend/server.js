@@ -45,8 +45,8 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter);
 
-// Linera GraphQL
-const LINERA_GRAPHQL_URL = process.env.LINERA_GRAPHQL_URL || 'http://127.0.0.1:8080/graphql'
+// Linera GraphQL (use 8081 for wallet service to avoid faucet port conflict)
+const LINERA_GRAPHQL_URL = process.env.LINERA_GRAPHQL_URL || 'http://127.0.0.1:8081/graphql'
 
 
 
